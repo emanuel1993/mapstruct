@@ -30,6 +30,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.FilerException;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
@@ -229,8 +230,11 @@ public class MappingProcessor extends AbstractProcessor {
                 deferredMappers.add( mapperElement );
             }
             catch ( Throwable t ) {
-                handleUncaughtError( mapperElement, t );
-                break;
+                if (!(t.getCause() instanceof FilerException &&
+                    t.getCause().getMessage().startsWith( "Source file already created:" ))) {
+                    handleUncaughtError( mapperElement, t );
+                    break;
+                }
             }
         }
     }
